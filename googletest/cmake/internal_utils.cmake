@@ -75,15 +75,15 @@ macro(config_compiler_and_linker)
       # we disable the warning project-wide.
       set(cxx_base_flags "${cxx_base_flags} -wd4127")
     endif()
-    if (NOT (MSVC_VERSION LESS 1700))  # 1700 is Visual Studio 2012.
-      # Suppress "unreachable code" warning on VS 2012 and later.
-      # http://stackoverflow.com/questions/3232669 explains the issue.
-      set(cxx_base_flags "${cxx_base_flags} -wd4702")
-    endif()
-    if (NOT (MSVC_VERSION GREATER 1900))  # 1900 is Visual Studio 2015
-      # BigObj required for tests.
-      set(cxx_base_flags "${cxx_base_flags} -bigobj")
-    endif()
+    # if (NOT (MSVC_VERSION LESS 1700))  # 1700 is Visual Studio 2012.
+    #   # Suppress "unreachable code" warning on VS 2012 and later.
+    #   # http://stackoverflow.com/questions/3232669 explains the issue.
+    #   set(cxx_base_flags "${cxx_base_flags} -wd4702")
+    # endif()
+    # if (NOT (MSVC_VERSION GREATER 1900))  # 1900 is Visual Studio 2015
+    #   # BigObj required for tests.
+    #   set(cxx_base_flags "${cxx_base_flags} -bigobj")
+    # endif()
 
     set(cxx_base_flags "${cxx_base_flags} -D_UNICODE -DUNICODE -DWIN32 -D_WIN32")
     set(cxx_base_flags "${cxx_base_flags} -DSTRICT -DWIN32_LEAN_AND_MEAN")
@@ -91,7 +91,7 @@ macro(config_compiler_and_linker)
     set(cxx_no_exception_flags "-D_HAS_EXCEPTIONS=0")
     set(cxx_no_rtti_flags "-GR-")
   elseif (CMAKE_COMPILER_IS_GNUCXX)
-    set(cxx_base_flags "-Wall -Wshadow")
+    set(cxx_base_flags "-Wall -Wshadow -fPIC -fstack-protector")
     set(cxx_exception_flags "-fexceptions")
     set(cxx_no_exception_flags "-fno-exceptions")
     # Until version 4.3.2, GCC doesn't define a macro to indicate
@@ -146,7 +146,7 @@ endmacro()
 function(cxx_library_with_type name type cxx_flags)
   # type can be either STATIC or SHARED to denote a static or shared library.
   # ARGN refers to additional arguments after 'cxx_flags'.
-  add_library(${name} ${type} ${ARGN})
+  add_library(${name} ${type} EXCLUDE_FROM_ALL ${ARGN})
   set_target_properties(${name}
     PROPERTIES
     COMPILE_FLAGS "${cxx_flags}")
